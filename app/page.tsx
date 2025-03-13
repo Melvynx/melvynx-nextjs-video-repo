@@ -6,25 +6,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 
 export default async function Home() {
-  const [posts, countPost] = await prisma.$transaction([
-    prisma.post.findMany({
-      include: {
-        _count: {
-          select: {
-            comments: true,
-          },
-        },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    }),
-    prisma.post.count(),
-  ]);
+  const [posts, countPost] = [[], 0];
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
