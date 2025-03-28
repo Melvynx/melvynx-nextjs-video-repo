@@ -6,7 +6,7 @@ export async function POST(req: Request) {
   const user = await getRequiredUser();
 
   const body = await req.json();
-  const { title, content } = body;
+  const { title, content, slug } = body;
 
   if (!title || !content) {
     return NextResponse.json(
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     data: {
       title,
       content,
-      slug: title.toLowerCase().replace(/\s+/g, "-"),
+      slug,
       userId: user.id,
     },
   });
