@@ -9,7 +9,7 @@ import {
 import Link from "next/link";
 import { PostListType } from "./post.prisma-query";
 
-export const PostCard = (props: { post: PostListType[number] }) => {
+export const PostCard = (props: { post: PostListType }) => {
   const post = props.post;
   return (
     <Link

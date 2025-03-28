@@ -7,7 +7,10 @@ import { PostCard } from "./post-card";
 import { getPosts } from "./post.prisma-query";
 
 export default async function Home() {
-  const [posts, countPost] = [await getPosts(), await prisma.post.count()];
+  const [posts, countPost] = await prisma.$transaction([
+    getPosts(),
+    prisma.post.count(),
+  ]);
 
   return (
     <div className="flex flex-col gap-4">

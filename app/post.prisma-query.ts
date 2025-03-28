@@ -1,13 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 
-const POSTS_SELECT = {
+const SELECT_POST_QUERY = {
   slug: true,
   id: true,
   title: true,
+  content: true,
   createdAt: true,
   updatedAt: true,
-  content: true,
   _count: {
     select: {
       comments: true,
@@ -15,20 +15,21 @@ const POSTS_SELECT = {
   },
 } satisfies Prisma.PostSelect;
 
-export const getPosts = async () => {
-  const post = prisma.post.findMany({
-    select: POSTS_SELECT,
+export const getPosts = () => {
+  return prisma.post.findMany({
+    select: SELECT_POST_QUERY,
   });
-  return post;
 };
 
-export const getPost = async (postSlug: string) => {
-  const post = prisma.post.findUnique({
+export type PostListType = Prisma.PromiseReturnType<typeof getPosts>[number];
+
+export const getPost = (slug: string) => {
+  return prisma.post.findUnique({
     where: {
-      slug: postSlug,
+      slug,
     },
     select: {
-      ...POSTS_SELECT,
+      ...SELECT_POST_QUERY,
       comments: {
         orderBy: {
           createdAt: "desc",
@@ -36,7 +37,4 @@ export const getPost = async (postSlug: string) => {
       },
     },
   });
-  return post;
 };
-
-export type PostListType = Prisma.PromiseReturnType<typeof getPosts>;
