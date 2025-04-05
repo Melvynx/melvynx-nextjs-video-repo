@@ -40,3 +40,27 @@ model Comment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model User {
+  id           Int    @id @default(autoincrement())
+  email        String
+  passwordHash String
+
+  sessions Session[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Session {
+  id        Int      @id @default(autoincrement())
+  token     String
+  expiresAt DateTime
+
+  // Relation
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { SessionDisplay } from "./client";
 import { PostCard } from "./post-card";
 import { getPosts } from "./post.prisma-query";
 
@@ -17,6 +18,8 @@ export default async function Home() {
       <h1 className="text-3xl font-bold mb-8 text-center">
         Latest Posts ({countPost})
       </h1>
+
+      <SessionDisplay />
 
       <div className="grid gap-6">
         {posts.map((post) => (
