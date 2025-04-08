@@ -15,7 +15,7 @@ export const AuthButton = async () => {
   if (user) {
     return (
       <DropdownMenu>
-        <DropdownMenuTrigger>
+        <DropdownMenuTrigger asChild>
           <Button size="sm">{user.name || user.email}</Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>

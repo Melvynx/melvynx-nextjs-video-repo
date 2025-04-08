@@ -11,9 +11,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { authClient } from "@/lib/auth-client";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { toast } from "sonner";
 import { OrganizationInviteMemberForm } from "./org-invite-member-form";
 import type { Invitation, Member } from "./page";
@@ -30,7 +30,6 @@ export function TeamsForm({
   maxMembers = 5,
 }: TeamsFormProps) {
   const router = useRouter();
-  const [localMembers, setLocalMembers] = useState(members);
 
   const updateRoleMutation = useMutation({
     mutationFn: async ({
@@ -40,66 +39,62 @@ export function TeamsForm({
       memberId: string;
       role: string;
     }) => {
-      // Placeholder for API call
-      console.log("Update role", { memberId, role });
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      return { memberId, role };
+      const result = await authClient.organization.updateMemberRole({
+        memberId: memberId,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        role: role as any,
+      });
+      if (result.error) {
+        throw result.error;
+      }
+      return result.data;
     },
-    onMutate: ({ memberId, role }) => {
-      // Optimistic update
-      setLocalMembers((prev) =>
-        prev.map((member) =>
-          member.id === memberId ? { ...member, role } : member
-        )
-      );
-    },
+
     onSuccess: () => {
       toast.success("Role updated successfully");
       router.refresh();
     },
-    onError: () => {
-      toast.error("Failed to update role");
-      router.refresh();
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 
   const removeMemberMutation = useMutation({
     mutationFn: async (memberId: string) => {
-      // Placeholder for API call
-      console.log("Remove member", memberId);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      return memberId;
+      const result = await authClient.organization.removeMember({
+        memberIdOrEmail: memberId,
+      });
+      if (result.error) {
+        throw result.error;
+      }
+      return result.data;
     },
-    onMutate: (memberId) => {
-      // Optimistic update
-      setLocalMembers((prev) =>
-        prev.filter((member) => member.id !== memberId)
-      );
-    },
+
     onSuccess: () => {
       toast.success("Member removed successfully");
       router.refresh();
     },
-    onError: () => {
-      toast.error("Failed to remove member");
-      router.refresh();
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 
   const cancelInvitationMutation = useMutation({
     mutationFn: async (invitationId: string) => {
-      // Placeholder for API call
-      console.log("Cancel invitation", invitationId);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      return invitationId;
+      const result = await authClient.organization.cancelInvitation({
+        invitationId,
+      });
+      if (result.error) {
+        throw result.error;
+      }
+      return result.data;
     },
     onSuccess: () => {
       toast.success("Invitation cancelled successfully");
       router.refresh();
     },
-    onError: () => {
-      toast.error("Failed to cancel invitation");
-      router.refresh();
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 
@@ -107,7 +102,7 @@ export function TeamsForm({
     <Card>
       <CardHeader>
         <CardTitle>Team Members</CardTitle>
-        {localMembers.length < maxMembers ? (
+        {members.length < maxMembers ? (
           <OrganizationInviteMemberForm />
         ) : (
           <Button variant="outline" disabled>
@@ -124,7 +119,7 @@ export function TeamsForm({
 
         <TabsContent value="members">
           <CardContent>
-            {localMembers.map((member) => (
+            {members.map((member) => (
               <div key={member.id} className="flex items-center gap-4 py-2">
                 <Avatar>
                   <AvatarFallback>
@@ -141,32 +136,37 @@ export function TeamsForm({
                 </div>
 
                 <div className="ml-auto flex items-center gap-2">
-                  <Select
-                    defaultValue={member.role}
-                    onValueChange={(value) =>
-                      updateRoleMutation.mutate({
-                        memberId: member.id,
-                        role: value,
-                      })
-                    }
-                    disabled={updateRoleMutation.isPending}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="admin">Admin</SelectItem>
-                      <SelectItem value="member">Member</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  <Button
-                    variant="ghost"
-                    onClick={() => removeMemberMutation.mutate(member.id)}
-                    disabled={removeMemberMutation.isPending}
-                  >
-                    {removeMemberMutation.isPending ? "Removing..." : "Remove"}
-                  </Button>
+                  {member.role === "owner" ? null : (
+                    <>
+                      <Select
+                        defaultValue={member.role}
+                        onValueChange={(value) =>
+                          updateRoleMutation.mutate({
+                            memberId: member.id,
+                            role: value,
+                          })
+                        }
+                        disabled={updateRoleMutation.isPending}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="admin">Admin</SelectItem>
+                          <SelectItem value="member">Member</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        variant="ghost"
+                        onClick={() => removeMemberMutation.mutate(member.id)}
+                        disabled={removeMemberMutation.isPending}
+                      >
+                        {removeMemberMutation.isPending
+                          ? "Removing..."
+                          : "Remove"}
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
             ))}

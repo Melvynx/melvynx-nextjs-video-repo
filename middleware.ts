@@ -6,6 +6,7 @@ export async function middleware(request: NextRequest) {
   if (!sessionCookie) {
     return NextResponse.redirect(new URL("/", request.url));
   }
+
   return NextResponse.next();
 }
 

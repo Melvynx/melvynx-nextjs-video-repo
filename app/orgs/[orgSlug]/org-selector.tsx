@@ -7,30 +7,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { authClient } from "@/lib/auth-client";
+import { useMutation } from "@tanstack/react-query";
 import { Building } from "lucide-react";
-import { useRouter } from "next/navigation";
 
-export const OrgSelector = () => {
-  const router = useRouter();
-  const orgs = [
-    {
-      id: "1901BB5D-A5D1-4963-940B-7DF6B9D90A08",
-      slug: "codelynx-llc",
-      name: "Codelynx, LLC",
-    },
-    {
-      id: "CF75F783-2E1F-48CA-A0F6-49C4F19AB5A0",
-      slug: "patrick-llc",
-      name: "Patrick, LLC",
-    },
-  ];
+export const OrgSelector = (props: { currentOrgSlug: string }) => {
+  const data = authClient.useListOrganizations();
 
-  const handleOrgChange = (value: string) => {
-    // Update active org
-  };
+  const setActiveOrganizationMutation = useMutation({
+    mutationFn: async (orgSlug: string) => {
+      const result = await authClient.organization.setActive({
+        organizationSlug: orgSlug,
+      });
+      window.location.pathname = `/orgs/${result.data?.slug}`;
+    },
+  });
+
+  const orgs = data.data;
+
+  if (!orgs) return <p>Loading...</p>;
 
   return (
-    <Select onValueChange={handleOrgChange} defaultValue={orgs[0].slug}>
+    <Select
+      onValueChange={(orgSlug) => {
+        setActiveOrganizationMutation.mutate(orgSlug);
+      }}
+      defaultValue={props.currentOrgSlug}
+    >
       <SelectTrigger>
         <Building className="h-4 w-4 mr-2" />
         <SelectValue placeholder="Select organization" />

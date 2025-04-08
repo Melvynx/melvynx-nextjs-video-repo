@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { authClient } from "@/lib/auth-client";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -30,10 +31,16 @@ export function OrganizationInviteMemberForm() {
   const inviteMutation = useMutation({
     mutationFn: async ({ email, role }: { email: string; role: string }) => {
       // Placeholder for API call
-      console.log("Invite member", { email, role });
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      return { email, role };
+
+      const result = await authClient.organization.inviteMember({
+        email: email,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        role: role as any,
+      });
+      if (result.error) {
+        throw result.error;
+      }
+      return result.data;
     },
     onSuccess: () => {
       toast.success("Invitation sent successfully");
@@ -42,8 +49,8 @@ export function OrganizationInviteMemberForm() {
       setRole("member");
       router.refresh();
     },
-    onError: () => {
-      toast.error("Failed to send invitation");
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 
