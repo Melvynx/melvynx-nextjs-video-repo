@@ -54,7 +54,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <Card>
+    <Card className="max-w-md mx-auto">
       <CardHeader>
         <CardTitle>Sign up</CardTitle>
         <CardDescription>

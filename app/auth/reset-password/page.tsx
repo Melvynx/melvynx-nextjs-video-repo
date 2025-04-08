@@ -79,7 +79,7 @@ export default function ResetPasswordPage() {
 
   if (!token) {
     return (
-      <Card>
+      <Card className="max-w-md mx-auto">
         <CardHeader>
           <CardTitle>Reset Password email</CardTitle>
         </CardHeader>
@@ -108,7 +108,7 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <Card>
+    <Card className="max-w-md mx-auto">
       <CardHeader>
         <CardTitle>Reset Password</CardTitle>
         <CardDescription>{token}</CardDescription>

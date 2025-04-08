@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function AuthPage() {
   return (
-    <Card>
+    <Card className="max-w-md mx-auto">
       <CardHeader>
         <CardTitle>Verify your email</CardTitle>
       </CardHeader>
