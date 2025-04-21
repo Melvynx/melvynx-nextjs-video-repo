@@ -1,5 +1,5 @@
+import { Prisma } from "@/lib/generated/client";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
 
 const SELECT_POST_QUERY = {
   slug: true,
