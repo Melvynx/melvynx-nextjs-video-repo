@@ -21,7 +21,7 @@ export const POST = authRoute
       data: {
         content: body.content,
         postId: params.postId,
-        userId: context.data.user.id,
+        userId: context.ctx.user.id,
       },
       include: {
         user: {

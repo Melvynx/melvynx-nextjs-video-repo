@@ -1,5 +1,5 @@
+import { PrismaClient } from "@/lib/generated/client";
 import { faker } from "@faker-js/faker";
-import { PrismaClient } from "@prisma/client";
 import { randomUUID } from "crypto";
 
 const prisma = new PrismaClient();

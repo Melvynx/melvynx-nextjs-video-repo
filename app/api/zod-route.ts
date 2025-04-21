@@ -4,14 +4,12 @@ import { NextResponse } from "next/server";
 
 export const route = createZodRoute();
 
-export const authRoute = route.use(
-  async ({ next, context, request, metadata }) => {
-    const user = await getUser();
+export const authRoute = route.use(async ({ next }) => {
+  const user = await getUser();
 
-    if (!user) {
-      return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
-    }
-
-    return next({ context: { user } });
+  if (!user) {
+    return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });
   }
-);
+
+  return next({ ctx: { user } });
+});

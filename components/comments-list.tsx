@@ -13,7 +13,7 @@ import { toast } from "sonner";
 type Comment = {
   id: number;
   content: string;
-  createdAt: string;
+  createdAt: Date;
   userId: string;
   user: {
     name: string;
