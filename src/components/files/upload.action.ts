@@ -1,5 +1,6 @@
 "use server";
 
+import { canUploadFilesDS } from "@/lib/domain-service/canUploadFiles";
 import { ItemType } from "@/lib/generated/client";
 import { prisma } from "@/lib/prisma";
 import { userAction } from "@/lib/safe-action";
@@ -34,6 +35,12 @@ export const uploadFileAction = userAction
   .schema(formDataSchema)
   .action(async ({ parsedInput, ctx }) => {
     const { user } = ctx;
+
+    const canUploadFiles = await canUploadFilesDS();
+
+    if (!canUploadFiles) {
+      throw new Error("You need to upgrade !");
+    }
 
     const file = parsedInput.file;
 

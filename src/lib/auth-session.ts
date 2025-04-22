@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { unauthorized } from "next/navigation";
 import { auth } from "./auth"; // path to your Better Auth server instance
+import { getLimitation } from "./auth-limitations";
 
 export const getUser = async () => {
   const session = await auth.api.getSession({
@@ -11,7 +12,7 @@ export const getUser = async () => {
 
   return {
     ...session.user,
-    plan: "FREE",
+    limitations: getLimitation(session.user.plan),
   };
 };
 

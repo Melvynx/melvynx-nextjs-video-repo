@@ -62,6 +62,8 @@ export const updateItemAction = userAction
       },
       data: {
         ...parsedInput,
+        password: user.limitations.canAddPassword ? parsedInput.password : null,
+        price: user.limitations.canAddPricing ? parsedInput.price : null,
       },
     });
 
