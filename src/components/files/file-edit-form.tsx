@@ -11,7 +11,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
@@ -29,16 +29,18 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { LimitationType } from "@/lib/auth-limitations";
 import { Item } from "@/lib/generated/client";
 import { format } from "date-fns";
 import { CalendarIcon, TrashIcon } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 import {
   deleteItem,
-  updateItem,
+  updateItemAction,
 } from "../../../app/(manage)/files/file.action";
 import {
   Card,
@@ -47,6 +49,12 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../ui/tooltip";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -62,9 +70,10 @@ type FormValues = z.infer<typeof formSchema>;
 
 interface FileEditFormProps {
   file: Item;
+  limitation: LimitationType;
 }
 
-export function FileEditForm({ file }: FileEditFormProps) {
+export function FileEditForm({ file, limitation }: FileEditFormProps) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -82,7 +91,7 @@ export function FileEditForm({ file }: FileEditFormProps) {
   const onSubmit = async (values: FormValues) => {
     setIsUpdating(true);
     try {
-      await updateItem({
+      await updateItemAction({
         id: file.id,
         ...values,
         price: values.price ? Math.floor(values.price * 100) : null,
@@ -169,13 +178,48 @@ export function FileEditForm({ file }: FileEditFormProps) {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      type="password"
-                      placeholder="Set a password (optional)"
-                      value={field.value || ""}
-                      onChange={(e) => field.onChange(e.target.value || null)}
-                    />
+                    {limitation.canAddPassword ? (
+                      <Input
+                        {...field}
+                        type="password"
+                        placeholder="Set a password (optional)"
+                        value={field.value || ""}
+                        onChange={(e) => field.onChange(e.target.value || null)}
+                      />
+                    ) : (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <Input
+                              {...field}
+                              type="password"
+                              disabled
+                              placeholder="Set a password (optional)"
+                              value={field.value || ""}
+                              onChange={(e) =>
+                                field.onChange(e.target.value || null)
+                              }
+                            />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>
+                              You need to upgrade your plan to add password
+                              protection to your files.
+                            </p>
+                            <Link
+                              className={buttonVariants({
+                                size: "sm",
+                                variant: "outline",
+                                className: "mt-2 text-foreground",
+                              })}
+                              href="/pricing"
+                            >
+                              Upgrade
+                            </Link>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    )}
                   </FormControl>
                   <FormDescription>
                     Password protect this file (leave empty for no password)
@@ -247,22 +291,64 @@ export function FileEditForm({ file }: FileEditFormProps) {
                       <span className="text-muted-foreground">$</span>
                     </div>
                     <FormControl>
-                      <Input
-                        {...field}
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        placeholder="0.00"
-                        className="pl-8"
-                        value={field.value === null ? "" : field.value}
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value === ""
-                              ? null
-                              : parseFloat(e.target.value)
-                          )
-                        }
-                      />
+                      {limitation.canAddPassword ? (
+                        <Input
+                          {...field}
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          placeholder="0.00"
+                          className="pl-8"
+                          value={field.value === null ? "" : field.value}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value === ""
+                                ? null
+                                : parseFloat(e.target.value)
+                            )
+                          }
+                        />
+                      ) : (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <Input
+                                {...field}
+                                type="number"
+                                disabled
+                                step="0.01"
+                                min="0"
+                                placeholder="0.00"
+                                className="pl-8"
+                                value={field.value === null ? "" : field.value}
+                                onChange={(e) =>
+                                  field.onChange(
+                                    e.target.value === ""
+                                      ? null
+                                      : parseFloat(e.target.value)
+                                  )
+                                }
+                              />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>
+                                You need to upgrade your plan to add password
+                                protection to your files.
+                              </p>
+                              <Link
+                                className={buttonVariants({
+                                  size: "sm",
+                                  variant: "outline",
+                                  className: "mt-2 text-foreground",
+                                })}
+                                href="/pricing"
+                              >
+                                Upgrade
+                              </Link>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
                     </FormControl>
                   </div>
                   <FormDescription>

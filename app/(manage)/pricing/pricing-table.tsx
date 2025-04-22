@@ -100,7 +100,7 @@ export function PricingTable(props: { currentPlan: string }) {
                 : "text-muted-foreground"
             )}
           >
-            Yearly (Save 20%)
+            Yearly (2 months free)
           </button>
         </div>
       </div>
@@ -129,11 +129,16 @@ export function PricingTable(props: { currentPlan: string }) {
                 ) : null}
               </div>
               <div className="mt-4 flex items-baseline text-5xl font-extrabold">
-                ${isYearly ? Math.floor(price.price * 12 * 0.8) : price.price}
+                ${isYearly ? price.price * 10 : price.price}
                 <span className="ml-1 text-lg font-medium text-muted-foreground">
                   {price.price > 0 ? `/${isYearly ? "year" : "month"}` : ""}
                 </span>
               </div>
+              {isYearly && price.price > 0 && (
+                <p className="mt-1 text-sm text-green-600 font-medium">
+                  2 months free
+                </p>
+              )}
             </CardHeader>
             <CardContent className="flex-1">
               <ul className="space-y-3">
