@@ -13,7 +13,7 @@ import {
   ShieldIcon,
 } from "lucide-react";
 import { cookies } from "next/headers";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { PasswordForm } from "./password-form";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -25,6 +25,8 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
+import { getLimitation } from "@/lib/auth-limitations";
+import { stripe } from "@/lib/stripe";
 
 // Helper to get file type icon
 const FileTypeIcon = ({ type }: { type: ItemType }) => {
@@ -44,21 +46,26 @@ const FileTypeIcon = ({ type }: { type: ItemType }) => {
   }
 };
 
-export default async function SharePage({
-  params,
-  searchParams,
-}: {
-  params: { itemId: string };
-  searchParams: { [key: string]: string | string[] | undefined };
+export default async function SharePage(props: {
+  params: Promise<{ itemId: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
+  const params = await props.params;
+  const searchParams = await props.searchParams;
   const { itemId } = params;
-  const checkoutSessionId = searchParams.checkoutSessionId as
-    | string
-    | undefined;
+  const sessionId = searchParams.session_id;
 
   // Get the item from the database
   const item = await prisma.item.findUnique({
     where: { id: itemId },
+    include: {
+      user: {
+        select: {
+          plan: true,
+          stripeAccountId: true,
+        },
+      },
+    },
   });
 
   // If item doesn't exist, show 404
@@ -94,7 +101,23 @@ export default async function SharePage({
 
   // Check if the file is paid and not yet purchased
   const isPaid = !!item.price && item.price > 0;
-  const isPurchased = !!checkoutSessionId; // Fake verification for now
+  let isPurchased = false;
+  try {
+    if (isPaid && sessionId) {
+      const stripeCheckoutSession = await stripe.checkout.sessions.retrieve(
+        sessionId as string,
+        {
+          stripeAccount: item.user.stripeAccountId as string,
+        }
+      );
+
+      const isCompleted = stripeCheckoutSession.status === "complete";
+
+      isPurchased = isCompleted;
+    }
+  } catch {
+    isPurchased = false;
+  }
 
   // Check if it's an image for preview
   const isImage = item.type === "IMAGE";
@@ -161,13 +184,65 @@ export default async function SharePage({
                     </p>
                   </div>
 
-                  <Button asChild className="w-full">
-                    <a
-                      href={`/share/${itemId}?checkoutSessionId=fake-session-${Date.now()}`}
+                  <form>
+                    <Button
+                      formAction={async () => {
+                        "use server";
+
+                        const { stripeAccountId, plan } =
+                          await prisma.user.findFirstOrThrow({
+                            where: {
+                              items: {
+                                some: {
+                                  id: itemId,
+                                },
+                              },
+                            },
+                            select: { stripeAccountId: true, plan: true },
+                          });
+
+                        if (!stripeAccountId) new Error("Invalid");
+
+                        const limitation = getLimitation(plan);
+
+                        const session = await stripe.checkout.sessions.create(
+                          {
+                            mode: "payment",
+                            line_items: [
+                              {
+                                price_data: {
+                                  currency: "USD",
+                                  unit_amount: item.price ?? 0,
+                                  product_data: {
+                                    name: item.name,
+                                    description: "SOme descriptoin",
+                                  },
+                                },
+                                quantity: 1,
+                              },
+                            ],
+                            payment_intent_data: {
+                              application_fee_amount: Math.round(
+                                ((item.price ?? 0) * limitation.fees) / 100
+                              ),
+                            },
+                            success_url: `http://localhost:3000/share/${item.id}?session_id={CHECKOUT_SESSION_ID}`,
+                            cancel_url: `http://localhost:3000/share/${item.id}`,
+                          },
+                          {
+                            stripeAccount: stripeAccountId ?? "",
+                          }
+                        );
+
+                        if (!session.url) throw new Error("Invlaid url");
+
+                        redirect(session.url);
+                      }}
+                      className="w-full"
                     >
                       Buy Now
-                    </a>
-                  </Button>
+                    </Button>
+                  </form>
                 </div>
               </div>
             )}

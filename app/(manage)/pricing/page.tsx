@@ -1,4 +1,5 @@
 import { getUser } from "@/lib/auth-session";
+import { PRICES } from "./price.data";
 import { PricingTable } from "./pricing-table";
 
 export default async function RoutePage() {
@@ -17,7 +18,7 @@ export default async function RoutePage() {
       </div>
 
       <div className="mt-10">
-        <PricingTable currentPlan={user?.plan ?? "free"} />
+        <PricingTable currentPlan={user?.plan ?? "free"} prices={PRICES} />
       </div>
     </div>
   );

@@ -15,49 +15,12 @@ import { Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { upgradePlan } from "./price.action";
+import { PriceType } from "./price.data";
 
-type PriceType = {
-  id: string;
-  name: string;
-  price: number;
-  features: string[];
-  monthlyPriceId: string;
-  yearlyPriceId: string;
-};
-
-const prices: PriceType[] = [
-  {
-    id: "FREE",
-    name: "Free",
-    price: 0,
-    features: ["Basic file sharing", "Limited storage", "Standard support"],
-    monthlyPriceId: "",
-    yearlyPriceId: "",
-  },
-  {
-    id: "IRON",
-    name: "Iron",
-    price: 5,
-    features: ["Password protection", "Extended storage", "Priority support"],
-    monthlyPriceId: "price_iron_monthly", // Replace with actual Stripe price ID
-    yearlyPriceId: "price_iron_yearly", // Replace with actual Stripe price ID
-  },
-  {
-    id: "GOLD",
-    name: "Gold",
-    price: 50,
-    features: [
-      "Unlimited sharing",
-      "Premium storage",
-      "24/7 support",
-      "Custom branding",
-    ],
-    monthlyPriceId: "price_gold_monthly", // Replace with actual Stripe price ID
-    yearlyPriceId: "price_gold_yearly", // Replace with actual Stripe price ID
-  },
-];
-
-export function PricingTable(props: { currentPlan: string }) {
+export function PricingTable(props: {
+  currentPlan: string;
+  prices: PriceType[];
+}) {
   const [isYearly, setIsYearly] = useState(false);
   const router = useRouter();
 
@@ -106,7 +69,7 @@ export function PricingTable(props: { currentPlan: string }) {
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {prices.map((price) => (
+        {props.prices.map((price) => (
           <Card
             key={price.id}
             className={cn(

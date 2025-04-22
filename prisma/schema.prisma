@@ -29,7 +29,8 @@ model User {
   image            String?
   createdAt        DateTime
   updatedAt        DateTime
-  stripeCustomerId String?
+  stripeCustomerId String?  @unique
+  stripeAccountId  String?  @unique
   plan             UserPlan @default(BRONZE)
 
   sessions Session[]

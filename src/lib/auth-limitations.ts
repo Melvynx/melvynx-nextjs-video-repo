@@ -4,6 +4,7 @@ export type LimitationType = {
   files: number;
   canAddPassword: boolean;
   canAddPricing: boolean;
+  fees: number;
 };
 
 export const PLAN_LIMITATIONS: Record<UserPlan, LimitationType> = {
@@ -11,16 +12,19 @@ export const PLAN_LIMITATIONS: Record<UserPlan, LimitationType> = {
     files: 1,
     canAddPassword: false,
     canAddPricing: false,
+    fees: 10,
   },
   IRON: {
     files: 10,
     canAddPassword: true,
     canAddPricing: true,
+    fees: 5,
   },
   GOLD: {
     files: 500,
     canAddPassword: true,
     canAddPricing: true,
+    fees: 3,
   },
 };
 

@@ -26,6 +26,7 @@ export const auth = betterAuth({
             email: user.email,
             name: user.name,
           });
+          const account = await stripe.accounts.create();
 
           await prisma.user.update({
             where: {
@@ -33,6 +34,7 @@ export const auth = betterAuth({
             },
             data: {
               stripeCustomerId: customer.id,
+              stripeAccountId: account.id,
             },
           });
         },

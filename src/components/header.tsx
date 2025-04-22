@@ -1,4 +1,5 @@
 import { getUser } from "@/lib/auth-session";
+import Image from "next/image";
 import Link from "next/link";
 import { LogoutButton } from "./logout";
 import { Button, buttonVariants } from "./ui/button";
@@ -35,9 +36,25 @@ export const Header = async () => {
         </Link>
       ) : null}
       <div className="flex-1"></div>
+      {user?.plan === "IRON" ? (
+        <Image
+          src="/plan/PLAN_IRON.png"
+          width={32}
+          height={32}
+          alt="iron plan icon"
+        />
+      ) : null}
+      {user?.plan === "GOLD" ? (
+        <Image
+          src="/plan/PLAN_GOLD.png"
+          width={32}
+          height={32}
+          alt="iron plan icon"
+        />
+      ) : null}
       {user ? (
         <DropdownMenu>
-          <DropdownMenuTrigger>
+          <DropdownMenuTrigger asChild>
             <Button size="sm">{user.name || user.email}</Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>

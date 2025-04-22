@@ -1,7 +1,11 @@
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { auth } from "@/lib/auth";
-import { getRequiredUser } from "@/lib/auth-session";
+import { getRequiredUser, getUser } from "@/lib/auth-session";
+import { prisma } from "@/lib/prisma";
+import { stripe } from "@/lib/stripe";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { AuthForm } from "./auth-form";
 
 export default async function AuthPage() {
@@ -21,6 +25,47 @@ export default async function AuthPage() {
         </CardHeader>
         <CardContent>
           <AuthForm name={user.name} />
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Subscription Management</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form>
+            <Button
+              formAction={async () => {
+                "use server";
+
+                const currentUser = await getUser();
+
+                if (!currentUser) throw new Error("Invalid user");
+                const { stripeCustomerId } =
+                  await prisma.user.findUniqueOrThrow({
+                    where: { id: currentUser.id },
+                    select: { stripeCustomerId: true },
+                  });
+
+                if (!stripeCustomerId) {
+                  throw new Error("Invalid user");
+                }
+
+                const billingPortal =
+                  await stripe.billingPortal.sessions.create({
+                    customer: stripeCustomerId,
+                    return_url: "http://localhost:3000/auth",
+                  });
+
+                if (!billingPortal.url) {
+                  throw new Error("Invalid Billing POrtal");
+                }
+
+                redirect(billingPortal.url);
+              }}
+            >
+              Manage Subscription
+            </Button>
+          </form>
         </CardContent>
       </Card>
       <Card>
