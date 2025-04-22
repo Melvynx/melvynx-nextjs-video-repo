@@ -4,12 +4,60 @@ import { nextCookies } from "better-auth/next-js";
 import { magicLink } from "better-auth/plugins/magic-link";
 import { prisma } from "./prisma";
 import { resend } from "./resend";
+import { stripe } from "./stripe";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
+  user: {
+    additionalFields: {
+      plan: {
+        type: "string",
+        required: false,
+      },
+    },
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (user) => {
+          const customer = await stripe.customers.create({
+            email: user.email,
+            name: user.name,
+          });
 
+          await prisma.user.update({
+            where: {
+              id: user.id,
+            },
+            data: {
+              stripeCustomerId: customer.id,
+            },
+          });
+        },
+      },
+      update: {
+        after: async (user) => {
+          const { stripeCustomerId } = await prisma.user.findUniqueOrThrow({
+            where: {
+              id: user.id,
+            },
+            select: {
+              stripeCustomerId: true,
+            },
+          });
+
+          if (!stripeCustomerId) return;
+
+          await stripe.customers.update(stripeCustomerId, {
+            email: user.email,
+            name: user.name,
+          });
+        },
+      },
+    },
+  },
   appName: "prisma-auth-app",
   emailAndPassword: {
     enabled: true,

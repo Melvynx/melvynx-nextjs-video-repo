@@ -15,17 +15,26 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserPlan {
+  BRONZE
+  IRON
+  GOLD
+}
+
 model User {
-  id            String    @id
-  name          String
-  email         String
-  emailVerified Boolean
-  image         String?
-  createdAt     DateTime
-  updatedAt     DateTime
-  sessions      Session[]
-  accounts      Account[]
-  items         Item[]
+  id               String   @id
+  name             String
+  email            String
+  emailVerified    Boolean
+  image            String?
+  createdAt        DateTime
+  updatedAt        DateTime
+  stripeCustomerId String?
+  plan             UserPlan @default(BRONZE)
+
+  sessions Session[]
+  accounts Account[]
+  items    Item[]
 
   @@unique([email])
   @@map("user")
