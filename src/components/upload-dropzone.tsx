@@ -2,7 +2,6 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { FileIcon, UploadIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { uploadFileAction } from "./files/upload.action";
@@ -19,7 +18,6 @@ export function UploadDropzone({
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
 
   const uploadMutation = useMutation({
     mutationFn: async (file: File) => {

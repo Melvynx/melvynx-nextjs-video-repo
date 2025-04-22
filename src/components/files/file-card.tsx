@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -100,7 +101,6 @@ export function FileCard({ file }: FileCardProps) {
                 src={file.fileUrl}
                 alt={file.name}
                 className="object-cover"
-                alt="preview of image"
               />
             </div>
           ) : (
