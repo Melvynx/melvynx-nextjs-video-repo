@@ -1,5 +1,5 @@
-import { Header } from "@/components/header";
 import { cn } from "@/lib/utils";
+import { Header } from "@/src/components/header";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";

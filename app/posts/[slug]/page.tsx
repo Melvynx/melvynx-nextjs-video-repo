@@ -1,13 +1,17 @@
-import CommentsList from "@/components/comments-list";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { prisma } from "@/lib/prisma";
+import CommentsList from "@/src/components/comments-list";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/src/components/ui/avatar";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { prisma } from "@/lib/prisma";
+} from "@/src/components/ui/card";
 import { notFound } from "next/navigation";
 
 export default async function Page(props: {

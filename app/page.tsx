@@ -1,5 +1,10 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { prisma } from "@/lib/prisma";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/src/components/ui/avatar";
+import { Button } from "@/src/components/ui/button";
 import {
   Card,
   CardContent,
@@ -7,8 +12,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { prisma } from "@/lib/prisma";
+} from "@/src/components/ui/card";
 import Link from "next/link";
 
 export default async function Home() {

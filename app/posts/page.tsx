@@ -1,7 +1,12 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { useSession } from "@/lib/auth-client";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/src/components/ui/avatar";
+import { Button } from "@/src/components/ui/button";
 import {
   Card,
   CardContent,
@@ -9,10 +14,9 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useSession } from "@/lib/auth-client";
+} from "@/src/components/ui/card";
+import { Input } from "@/src/components/ui/input";
+import { Label } from "@/src/components/ui/label";
 import { useRouter } from "next/navigation";
 import { FormEventHandler, useEffect, useState } from "react";
 import { toast } from "sonner";
