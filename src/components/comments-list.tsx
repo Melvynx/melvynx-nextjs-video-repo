@@ -1,15 +1,11 @@
 "use client";
 
 import { deleteCommentAction } from "@/app/posts/server.action";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useSession } from "@/lib/auth-client";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/src/components/ui/avatar";
-import { Button } from "@/src/components/ui/button";
-import { Input } from "@/src/components/ui/input";
-import { Label } from "@/src/components/ui/label";
 import { useRouter } from "next/navigation";
 import { FormEventHandler } from "react";
 import { toast } from "sonner";

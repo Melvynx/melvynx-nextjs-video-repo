@@ -1,5 +1,5 @@
-import { Alert, AlertDescription, AlertTitle } from "@/src/components/ui/alert";
-import { Card } from "@/src/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Card } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
 import Link from "next/link";
 

@@ -1,11 +1,6 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { auth } from "@/lib/auth";
 import { getUser } from "@/lib/auth-session";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/src/components/ui/card";
 import { headers } from "next/headers";
 
 export default async function AuthPage() {
