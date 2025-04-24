@@ -1,4 +1,5 @@
 import { Header } from "@/components/header";
+import { ThemeProvider } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -33,11 +34,18 @@ export default function RootLayout({
           "h-full"
         )}
       >
-        <div className="w-full border-x border-muted h-full flex flex-col gap-4 mx-auto min-h-full max-w-2xl">
-          <Header />
-          <div className="flex-1 px-4">{children}</div>
-          <Toaster />
-        </div>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <div className="w-full border-x border-muted h-full flex flex-col gap-4 mx-auto min-h-full max-w-2xl">
+            <Header />
+            <div className="flex-1 px-4">{children}</div>
+            <Toaster />
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );

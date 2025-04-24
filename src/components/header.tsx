@@ -1,6 +1,7 @@
 import { getUser } from "@/lib/auth-session";
 import Link from "next/link";
 import { LogoutButton } from "./logout";
+import { ModeToggle } from "./theme-toggle";
 import { Button, buttonVariants } from "./ui/button";
 import {
   DropdownMenu,
@@ -16,8 +17,14 @@ export const Header = async () => {
 
   return (
     <header className="px-4 py-2 border-b flex items-center gap-2">
-      <Link href="/">App</Link>
+      <Link href="/" className="text-lg font-bold">
+        Next
+        <span className="bg-gradient-to-r from-purple-800 to-blue-800 dark:from-purple-400 dark:to-blue-400 text-transparent bg-clip-text">
+          Fullstack
+        </span>
+      </Link>
       <div className="flex-1"></div>
+      <ModeToggle />
       {user ? (
         <DropdownMenu>
           <DropdownMenuTrigger>
