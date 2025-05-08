@@ -9,7 +9,8 @@
     "lint": "next lint",
     "ts": "tsc",
     "prisma:seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts",
-    "test": "vitest"
+    "test": "vitest",
+    "test:ci": "vitest --run"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
