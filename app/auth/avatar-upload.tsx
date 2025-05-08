@@ -45,9 +45,6 @@ export default function AvatarUpload(props: { user: User }) {
     onFilesAdded(addedFiles) {
       execute({ file: addedFiles[0]?.file as File });
     },
-    onFilesChange(files) {
-      execute({ file: files[0]?.file as File });
-    },
   });
 
   const previewUrl = files[0]?.preview || null;
@@ -83,7 +80,10 @@ export default function AvatarUpload(props: { user: User }) {
         </button>
         {previewUrl && (
           <Button
-            onClick={() => removeFile(files[0]?.id)}
+            onClick={() => {
+              removeFile(files[0]?.id);
+              execute({});
+            }}
             size="icon"
             className="border-background focus-visible:border-background absolute -top-1 -right-1 size-6 rounded-full border-2 shadow-none"
             aria-label="Remove image"

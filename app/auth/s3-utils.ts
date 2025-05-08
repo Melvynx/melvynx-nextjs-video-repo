@@ -8,8 +8,8 @@ export interface S3RedirectError extends Error {
 
 interface UploadFileParams {
   file: File;
-  userId: string;
-  type: string; // e.g. 'avatar', 'cover', etc.
+  fileName?: string;
+  path: string;
   contentType?: string;
 }
 
@@ -41,8 +41,8 @@ function getS3Client() {
  */
 export async function uploadFileToS3({
   file,
-  userId,
-  type,
+  path,
+  fileName = "default",
   contentType,
 }: UploadFileParams): Promise<string> {
   const s3BucketName = process.env.AWS_S3_BUCKET_NAME;
@@ -58,7 +58,7 @@ export async function uploadFileToS3({
 
   // Generate file path with deeper directory structure
   const fileExtension = file.name.split(".").pop();
-  const filePath = `users/${userId}/${type}/default.${fileExtension}`;
+  const filePath = `${path}/${fileName}.${fileExtension}`;
 
   // Get S3 client
   const s3Client = getS3Client();
@@ -85,21 +85,5 @@ export async function uploadFileToS3({
   }
 
   // Return the URL of the uploaded file
-  return `https://${s3BucketName}.s3.${region}.amazonaws.com/${filePath}`;
-}
-
-/**
- * Get the S3 key from a full S3 URL
- * @param url The full S3 URL
- * @returns The S3 key
- */
-export function getS3KeyFromUrl(url: string): string | null {
-  try {
-    const urlObj = new URL(url);
-    // Extract the path without the leading slash
-    return urlObj.pathname.substring(1);
-  } catch (error) {
-    console.error("Error extracting S3 key from URL:", error);
-    return null;
-  }
+  return `https://s3.${region}.amazonaws.com/${s3BucketName}/${filePath}`;
 }
