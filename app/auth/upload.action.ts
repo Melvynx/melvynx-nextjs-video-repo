@@ -6,7 +6,7 @@ import { zfd } from "zod-form-data";
 import { uploadFileToS3 } from "./s3-utils";
 
 const Schema = zfd.formData({
-  file: zfd.file(),
+  file: zfd.file().optional(),
 });
 
 export const uploadProfileAction = authAction
@@ -16,7 +16,12 @@ export const uploadProfileAction = authAction
     const { user } = ctx;
 
     if (!file) {
-      throw new Error("No file uploaded");
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { image: null },
+      });
+
+      return { success: true, url: null };
     }
 
     try {

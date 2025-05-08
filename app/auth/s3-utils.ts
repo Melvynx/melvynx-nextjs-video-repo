@@ -17,7 +17,7 @@ interface UploadFileParams {
  * Create and return an S3 client with the proper configuration
  */
 function getS3Client() {
-  const accessKeyId = process.env.AWS_KEY_ID;
+  const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
   const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
   const region = process.env.AWS_REGION;
 

@@ -6,8 +6,20 @@ import { CircleUserRoundIcon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFileUpload } from "@/hooks/use-file-upload";
 import { User } from "better-auth";
+import { useAction } from "next-safe-action/hooks";
+import { toast } from "sonner";
+import { uploadProfileAction } from "./upload.action";
 
 export default function AvatarUpload(props: { user: User }) {
+  const { execute } = useAction(uploadProfileAction, {
+    onSuccess() {
+      toast.success("Profile image updated successfully");
+    },
+    onError() {
+      toast.error("Failed to upload image");
+    },
+  });
+
   const [
     { files, isDragging },
     {
@@ -31,10 +43,10 @@ export default function AvatarUpload(props: { user: User }) {
       },
     ],
     onFilesAdded(addedFiles) {
-      console.log(addedFiles);
+      execute({ file: addedFiles[0]?.file as File });
     },
     onFilesChange(files) {
-      console.log(files);
+      execute({ file: files[0]?.file as File });
     },
   });
 
