@@ -1,9 +1,18 @@
-import FileUploadMultiFile from "@/components/file-upload-multi-file";
+"use client";
 
-export default async function Home() {
+import { TimeZoneSelect } from "@/components/timezone-select";
+import { useState } from "react";
+
+export default function Home() {
+  const [selectedTimeZone, setSelectedTimeZone] = useState<string>("");
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <FileUploadMultiFile />
+      <p>TimeZone : {selectedTimeZone}</p>
+      <TimeZoneSelect
+        selectedTimeZone={selectedTimeZone}
+        onTimeZoneChange={setSelectedTimeZone}
+      />
     </div>
   );
 }

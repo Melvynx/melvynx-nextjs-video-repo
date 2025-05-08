@@ -12,8 +12,6 @@ import {
 export const Header = async () => {
   const user = await getUser();
 
-  console.log(user);
-
   return (
     <header className="px-4 py-2 border-b flex items-center gap-2">
       <Link href="/">App</Link>
