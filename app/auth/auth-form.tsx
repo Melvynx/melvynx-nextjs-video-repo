@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { User } from "better-auth";
-import { ProfileImageUploader } from "./profile-image-uploader";
+import AvatarUpload from "./avatar-upload";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -41,7 +41,7 @@ export function AuthForm(props: { user: User }) {
     <div className="flex flex-col gap-8">
       <div className="flex items-center gap-2">
         <div className="relative group">
-          <ProfileImageUploader user={props.user} />
+          <AvatarUpload user={props.user} />
         </div>
         <div>
           <p className="text-lg font-medium">{props.user.name}</p>

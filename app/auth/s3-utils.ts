@@ -1,9 +1,4 @@
-import {
-  DeleteObjectCommand,
-  ListObjectsV2Command,
-  PutObjectCommand,
-  S3Client,
-} from "@aws-sdk/client-s3";
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 // Define the type for S3 PermanentRedirect error
 export interface S3RedirectError extends Error {
@@ -13,8 +8,8 @@ export interface S3RedirectError extends Error {
 
 interface UploadFileParams {
   file: File;
-  prefix: string;
-  identifier: string;
+  userId: string;
+  type: string; // e.g. 'avatar', 'cover', etc.
   contentType?: string;
 }
 
@@ -40,14 +35,14 @@ function getS3Client() {
 }
 
 /**
- * Upload a file to S3
+ * Upload a file to S3 using a deeper directory structure
  * @param params File and upload parameters
  * @returns The URL of the uploaded file
  */
 export async function uploadFileToS3({
   file,
-  prefix,
-  identifier,
+  userId,
+  type,
   contentType,
 }: UploadFileParams): Promise<string> {
   const s3BucketName = process.env.AWS_S3_BUCKET_NAME;
@@ -61,9 +56,9 @@ export async function uploadFileToS3({
   const fileBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(fileBuffer);
 
-  // Generate unique file name
+  // Generate file path with deeper directory structure
   const fileExtension = file.name.split(".").pop();
-  const uniqueFileName = `${prefix}/${identifier}-${Date.now()}.${fileExtension}`;
+  const filePath = `users/${userId}/${type}/default.${fileExtension}`;
 
   // Get S3 client
   const s3Client = getS3Client();
@@ -71,7 +66,7 @@ export async function uploadFileToS3({
   // Set upload parameters
   const params = {
     Bucket: s3BucketName,
-    Key: uniqueFileName,
+    Key: filePath,
     Body: buffer,
     ContentType: contentType || file.type,
   };
@@ -90,80 +85,21 @@ export async function uploadFileToS3({
   }
 
   // Return the URL of the uploaded file
-  return `https://${s3BucketName}.s3.${region}.amazonaws.com/${uniqueFileName}`;
+  return `https://${s3BucketName}.s3.${region}.amazonaws.com/${filePath}`;
 }
 
 /**
- * Delete images from S3 with a specific prefix
- * @param prefix The prefix to filter objects (e.g. "users/123/profile-")
- * @param excludeFileName Optional filename to exclude from deletion
- * @returns The number of deleted images or undefined if error
+ * Get the S3 key from a full S3 URL
+ * @param url The full S3 URL
+ * @returns The S3 key
  */
-export async function deleteImages(
-  prefix: string,
-  excludeFileName?: string
-): Promise<number | undefined> {
+export function getS3KeyFromUrl(url: string): string | null {
   try {
-    const s3BucketName = process.env.AWS_S3_BUCKET_NAME;
-
-    if (!s3BucketName) {
-      console.error("AWS S3 bucket name not configured");
-      return;
-    }
-
-    // Get S3 client
-    const s3Client = getS3Client();
-
-    // List all objects with the given prefix
-    const listCommand = new ListObjectsV2Command({
-      Bucket: s3BucketName,
-      Prefix: prefix,
-    });
-
-    const listedObjects = await s3Client.send(listCommand);
-
-    // No objects found
-    if (!listedObjects.Contents || listedObjects.Contents.length === 0) {
-      return 0;
-    }
-
-    // Filter out any excluded file if provided
-    const objectsToDelete = listedObjects.Contents.filter((obj) => {
-      if (!excludeFileName || !obj.Key) return true;
-      return !obj.Key.includes(excludeFileName);
-    });
-
-    // Delete each object
-    let deletedCount = 0;
-    for (const object of objectsToDelete) {
-      if (object.Key) {
-        const deleteCommand = new DeleteObjectCommand({
-          Bucket: s3BucketName,
-          Key: object.Key,
-        });
-
-        await s3Client.send(deleteCommand);
-        console.log(`Deleted image: ${object.Key}`);
-        deletedCount++;
-      }
-    }
-
-    return deletedCount;
+    const urlObj = new URL(url);
+    // Extract the path without the leading slash
+    return urlObj.pathname.substring(1);
   } catch (error) {
-    console.error("Error deleting images:", error);
-    // Don't throw - this is a cleanup operation and should not block the main flow
-    return undefined;
+    console.error("Error extracting S3 key from URL:", error);
+    return null;
   }
-}
-
-/**
- * Delete all previous profile images for a user
- * @param userId The user ID
- * @param currentFileName The current file name to preserve (optional)
- */
-export async function deleteUserProfileImages(
-  userId: string,
-  currentFileName?: string
-) {
-  return deleteImages(`${userId}/profile-`, currentFileName);
 }

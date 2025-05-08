@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { authAction } from "@/lib/safe-action";
 import { zfd } from "zod-form-data";
-import { deleteImages, uploadFileToS3 } from "./s3-utils";
+import { uploadFileToS3 } from "./s3-utils";
 
 const Schema = zfd.formData({
   file: zfd.file(),
@@ -20,16 +20,13 @@ export const uploadProfileAction = authAction
     }
 
     try {
-      // Upload the file to S3
+      // Upload the file to S3 with the new directory structure
+      // This will automatically replace any existing file at the same path
       const fileUrl = await uploadFileToS3({
         file,
-        prefix: user.id,
-        identifier: "profile",
+        userId: user.id,
+        type: "avatar",
       });
-
-      // Delete previous profile images after successful upload
-      // We don't need to wait for this to complete
-      await deleteImages(`${user.id}/profile-`, fileUrl.split("/").pop());
 
       // Update user profile with the new image URL
       const updatedUser = await prisma.user.update({
@@ -48,4 +45,18 @@ export const uploadProfileAction = authAction
         error instanceof Error ? error.message : "Failed to upload image"
       );
     }
+  });
+
+export const deleteProfileImageAction = authAction
+  .schema(zfd.formData({}))
+  .action(async ({ ctx }) => {
+    const { user } = ctx;
+
+    // Instead of deleting, we can just update the user to remove the image reference
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { image: null },
+    });
+
+    return { success: true };
   });
