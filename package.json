@@ -10,7 +10,8 @@
     "ts": "tsc",
     "prisma:seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts",
     "test": "vitest",
-    "test:ci": "vitest --run"
+    "test:ci": "vitest --run",
+    "test:e2e": "HEADLESS=false playwright test --ui"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
@@ -49,6 +50,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@faker-js/faker": "^8.4.1",
+    "@playwright/test": "^1.52.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
@@ -61,6 +63,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.2.1-canary.5",
     "jsdom": "^26.1.0",
+    "playwright": "^1.52.0",
     "prisma": "6.6.0",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
